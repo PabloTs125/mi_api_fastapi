@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  fastapi:
+    build: .
+    container_name: fastapi-app
+    depends_on:
+      - mariadb
+    environment:
+      - DB_USER=root
+      - DB_PASSWORD=Genoma
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_NAME=pruebasSena    
+    expose:
+      - "8000"
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: Genoma
+      MARIADB_DATABASE: pruebasSena
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - fastapi
+
+volumes:
+  mariadb_data:
